@@ -58,7 +58,7 @@ if submitted:
     with st.spinner("Analyzing data based on global reinsurance guidelines..."):
         system_instruction = "Act as an Expert Insurance Operations Assistant following Swiss Re/Gen-Re guidelines. Analyze the provided data based on the requested workflow. Highlight RED FLAGS clearly. Format the output as a professional executive report."
         
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={API_KEY}"
         headers = {'Content-Type': 'application/json'}
         payload = {
             "system_instruction": {"parts": [{"text": system_instruction}]},
