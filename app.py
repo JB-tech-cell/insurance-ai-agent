@@ -19,8 +19,7 @@ workflow = st.sidebar.radio(
 # 3. Secure API Key Setup
 API_KEY = st.secrets["GEMINI_API_KEY"] 
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('models/gemini-1.5-flash')
-
+model = genai.GenerativeModel('gemini-pro')
 # 4. Main Interface
 st.title("🛡️ AI Insurance Operations Assistant")
 st.markdown("### Powered by Advanced Gen-Re & Swiss Re Guidelines")
