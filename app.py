@@ -21,7 +21,7 @@ API_KEY = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=API_KEY)
 
 # استخدام الاسم الدقيق كما ظهر في الفحص
-model = genai.GenerativeModel('gemini-1.0-pro-latest')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 # 4. Main Interface
 st.title("🛡️ AI Insurance Operations Assistant")
