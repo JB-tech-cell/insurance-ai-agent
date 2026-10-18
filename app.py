@@ -19,7 +19,10 @@ workflow = st.sidebar.radio(
 # 3. Secure API Key Setup
 API_KEY = st.secrets["GEMINI_API_KEY"] 
 genai.configure(api_key=API_KEY)
-model = genai.GenerativeModel('gemini-pro')
+
+# استخدام النموذج المعتمد والأكثر استقراراً
+model = genai.GenerativeModel('gemini-1.5-flash')
+
 # 4. Main Interface
 st.title("🛡️ AI Insurance Operations Assistant")
 st.markdown("### Powered by Advanced Gen-Re & Swiss Re Guidelines")
@@ -33,28 +36,24 @@ with st.form("input_form"):
         occupation = col2.text_input("Occupation")
         income = col2.number_input("Annual Income ($)", min_value=1000)
         medical_history = st.text_area("Medical History (BMI, BP, Blood Sugar, Family History)")
-        
         prompt_data = f"Underwriting Request: Age {age}, Coverage ${coverage}, Occupation: {occupation}, Income ${income}. Medical: {medical_history}"
 
     elif workflow == "Medical Claims Auditing":
         st.subheader("🏥 Medical Claim Data")
         diagnosis = st.text_input("Diagnosis (ICD-10)")
         procedures = st.text_area("Billed Procedures & Hospital Stay Details")
-        
         prompt_data = f"Medical Claim Audit: Diagnosis: {diagnosis}. Billed Items: {procedures}"
 
     elif workflow == "Motor Claims Auditing":
         st.subheader("🚗 Motor Claim Data")
         accident_report = st.text_area("Police / Accident Report Narrative")
         surveyor_report = st.text_area("Surveyor Repair Request & Damages")
-        
         prompt_data = f"Motor Claim Audit: Accident Narrative: {accident_report}. Claimed Damages: {surveyor_report}"
 
     else:
         st.subheader("⚖️ Life Claim Data (Death/TPD/ADB)")
         claim_type = st.selectbox("Claim Type", ["Death", "TPD", "PPD", "ADB", "Passive War Risk"])
         claim_details = st.text_area("Claim Details & Medical/Police Reports")
-        
         prompt_data = f"Life Claim Audit ({claim_type}): Details: {claim_details}"
 
     submitted = st.form_submit_button("Analyze & Generate Report 🚀")
@@ -67,7 +66,7 @@ if submitted:
         Analyze the provided data based on the requested workflow. Highlight RED FLAGS clearly.
         Format the output as a professional executive report.
         """
-        
+        # توليد المحتوى
         response = model.generate_content(system_instruction + "\n\nData:\n" + prompt_data)
         
         st.success("✅ Analysis Complete!")
