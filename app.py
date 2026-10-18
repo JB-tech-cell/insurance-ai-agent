@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 
 # 1. Page Configuration
 st.set_page_config(page_title="Insurance Operations AI", page_icon="🛡️", layout="wide")
@@ -16,14 +16,9 @@ workflow = st.sidebar.radio(
      "Life Claims Auditing (Death/TPD/ADB)")
 )
 
-# 3. Secure API Key Setup
 API_KEY = st.secrets["GEMINI_API_KEY"] 
-genai.configure(api_key=API_KEY)
 
-# استخدام الاسم الدقيق كما ظهر في الفحص
-model = genai.GenerativeModel('gemini-1.0-pro')
-
-# 4. Main Interface
+# 3. Main Interface
 st.title("🛡️ AI Insurance Operations Assistant")
 st.markdown("### Powered by Advanced Gen-Re & Swiss Re Guidelines")
 
@@ -58,27 +53,36 @@ with st.form("input_form"):
 
     submitted = st.form_submit_button("Analyze & Generate Report 🚀")
 
-# 5. Process & Generate Report
+# 4. Direct Server Connection (Bypassing SDK)
 if submitted:
     with st.spinner("Analyzing data based on global reinsurance guidelines..."):
-        system_instruction = """
-        Act as an Expert Insurance Operations Assistant following Swiss Re/Gen-Re guidelines.
-        Analyze the provided data based on the requested workflow. Highlight RED FLAGS clearly.
-        Format the output as a professional executive report.
-        """
+        system_instruction = "Act as an Expert Insurance Operations Assistant following Swiss Re/Gen-Re guidelines. Analyze the provided data based on the requested workflow. Highlight RED FLAGS clearly. Format the output as a professional executive report."
+        
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+        headers = {'Content-Type': 'application/json'}
+        payload = {
+            "system_instruction": {"parts": [{"text": system_instruction}]},
+            "contents": [{"parts": [{"text": prompt_data}]}]
+        }
+        
         try:
-            response = model.generate_content(system_instruction + "\n\nData:\n" + prompt_data)
+            response = requests.post(url, headers=headers, json=payload)
+            response.raise_for_status()
+            result = response.json()
+            
+            report_text = result["candidates"][0]["content"]["parts"][0]["text"]
             
             st.success("✅ Analysis Complete!")
             st.markdown("---")
             st.markdown("### 📊 Executive AI Report")
-            st.write(response.text)
+            st.write(report_text)
             
             st.download_button(
                 label="Download Report as TXT",
-                data=response.text,
+                data=report_text,
                 file_name="AI_Insurance_Report.txt",
                 mime="text/plain"
             )
         except Exception as e:
-            st.error(f"Error during generation: {e}")
+            st.error("❌ حدث خطأ في الاتصال. التفاصيل:")
+            st.write(response.text)
