@@ -121,8 +121,7 @@ def create_pdf(report_text, policy, client, workflow_type):
     pdf.set_font("Arial", size=11)
     clean_text = report_text.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 7, txt=clean_text)
-    return pdf.output(dest='S').encode('latin-1')
-
+    return bytes(pdf.output())
 # 4. Main Interface
 st.title(t["main_title"])
 st.markdown(t["main_sub"])
