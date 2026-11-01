@@ -48,7 +48,8 @@ if language == "العربية":
         "surveyor_rep": "تقرير الخبير والأضرار المطالب بها",
         "life_claim_sec": "⚖️ بيانات مطالبة الحياة",
         "claim_type": "نوع المطالبة",
-        "claim_details": "تفاصيل المطالبة والتقارير المرفقة"
+        "claim_details": "تفاصيل المطالبة والتقارير المرفقة",
+        "disclaimer": "⚠️ تنويه هام: هذا النظام هو نموذج أعمال مخصص لعرض المهارات. يُمنع إدخال بيانات شخصية أو طبية حقيقية للعملاء (Data Privacy)."
     }
 else:
     t = {
@@ -88,7 +89,8 @@ else:
         "surveyor_rep": "Surveyor Repair Request & Damages",
         "life_claim_sec": "⚖️ Life Claim Data",
         "claim_type": "Claim Type",
-        "claim_details": "Claim Details & Medical/Police Reports"
+        "claim_details": "Claim Details & Medical/Police Reports",
+        "disclaimer": "⚠️ Disclaimer: This is a portfolio project. Please do not enter real personal or medical client data (Data Privacy)."
     }
 
 # 3. Sidebar Design
@@ -100,9 +102,13 @@ workflow_selection = st.sidebar.radio(
     (t["wf_life_med"], t["wf_med_claim"], t["wf_motor_claim"], t["wf_life_claim"])
 )
 
+st.sidebar.markdown("---")
+st.sidebar.warning(t["disclaimer"])
+
 API_KEY = st.secrets["GEMINI_API_KEY"] 
 genai.configure(api_key=API_KEY)
 
+# 4. PDF Generation Function
 def create_pdf(report_text, policy, client, workflow_type):
     pdf = FPDF()
     pdf.add_page()
@@ -121,8 +127,10 @@ def create_pdf(report_text, policy, client, workflow_type):
     pdf.set_font("Arial", size=11)
     clean_text = report_text.encode('latin-1', 'replace').decode('latin-1')
     pdf.multi_cell(0, 7, txt=clean_text)
+    
     return bytes(pdf.output())
-# 4. Main Interface
+
+# 5. Main Interface
 st.title(t["main_title"])
 st.markdown(t["main_sub"])
 
@@ -177,7 +185,7 @@ with st.form("input_form"):
 
     submitted = st.form_submit_button(t["btn_analyze"])
 
-# 5. AI Engine
+# 6. AI Engine & Dynamic Routing
 if submitted:
     with st.spinner(t["loading"]):
         lang_instruction = "Must output the report entirely in Arabic language." if language == "العربية" else "Must output the report entirely in English language."
@@ -207,7 +215,6 @@ if submitted:
                 
                 col_dl1, col_dl2 = st.columns(2)
                 
-                # زر الـ TXT يعمل دائماً للغتين
                 btn_txt_label = "📄 تحميل التقرير (TXT)" if language == "العربية" else "📄 Download Report (TXT)"
                 col_dl1.download_button(
                     label=btn_txt_label,
@@ -216,7 +223,6 @@ if submitted:
                     mime="text/plain"
                 )
                 
-                # معالجة الـ PDF بذكاء لتجنب انهيار التطبيق في اللغة العربية
                 if language == "English":
                     pdf_bytes = create_pdf(report_text, policy_no, client_name, workflow_selection)
                     col_dl2.download_button(
