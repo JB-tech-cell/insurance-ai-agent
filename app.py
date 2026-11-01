@@ -207,20 +207,26 @@ if submitted:
                 
                 col_dl1, col_dl2 = st.columns(2)
                 
+                # زر الـ TXT يعمل دائماً للغتين
+                btn_txt_label = "📄 تحميل التقرير (TXT)" if language == "العربية" else "📄 Download Report (TXT)"
                 col_dl1.download_button(
-                    label="📄 Download Report (TXT)",
+                    label=btn_txt_label,
                     data=report_text,
                     file_name=f"Report_{policy_no}.txt",
                     mime="text/plain"
                 )
                 
-                pdf_bytes = create_pdf(report_text, policy_no, client_name, workflow_selection)
-                col_dl2.download_button(
-                    label="📄 Download Report (PDF)",
-                    data=pdf_bytes,
-                    file_name=f"Report_{policy_no}.pdf",
-                    mime="application/pdf"
-                )
+                # معالجة الـ PDF بذكاء لتجنب انهيار التطبيق في اللغة العربية
+                if language == "English":
+                    pdf_bytes = create_pdf(report_text, policy_no, client_name, workflow_selection)
+                    col_dl2.download_button(
+                        label="📄 Download Report (PDF)",
+                        data=pdf_bytes,
+                        file_name=f"Report_{policy_no}.pdf",
+                        mime="application/pdf"
+                    )
+                else:
+                    col_dl2.info("💡 للحصول على PDF بالتنسيق العربي الأكاديمي: اضغط (Ctrl + P) أو Print من المتصفح واحفظ الصفحة.")
             else:
                 st.error(t["error"])
         except Exception as e:
